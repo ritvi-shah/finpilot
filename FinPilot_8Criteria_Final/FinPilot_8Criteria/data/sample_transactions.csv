@@ -1,0 +1,28 @@
+Date,Description,Amount,Type,Category,Notes
+2026-07-01,Salary,65000,Income,Other,Monthly salary
+2026-07-02,Rent,18000,Expense,Housing,
+2026-07-03,BigBasket,2100,Expense,Food,
+2026-07-04,Uber,420,Expense,Transport,
+2026-07-05,Netflix,649,Expense,Subscriptions,
+2026-07-06,Amazon,2100,Expense,Shopping,
+2026-08-01,Salary,65000,Income,Other,Monthly salary
+2026-08-02,Rent,18000,Expense,Housing,
+2026-08-03,BigBasket,2550,Expense,Food,
+2026-08-04,Uber,610,Expense,Transport,
+2026-08-05,Netflix,649,Expense,Subscriptions,
+2026-08-06,Amazon,4200,Expense,Shopping,
+2026-08-10,Swiggy,1120,Expense,Food,
+2026-08-18,Amazon,4600,Expense,Shopping,
+2026-09-01,Salary,65000,Income,Other,Monthly salary
+2026-09-02,Rent,18000,Expense,Housing,
+2026-09-03,BigBasket,1850,Expense,Food,
+2026-09-04,Uber,420,Expense,Transport,
+2026-09-05,Netflix,649,Expense,Subscriptions,
+2026-09-06,Amazon,2890,Expense,Shopping,
+2026-09-08,Electricity Bill,1450,Expense,Bills,
+2026-09-10,Swiggy,1620,Expense,Food,
+2026-09-12,Pharmacy,780,Expense,Health,
+2026-09-15,Uber,510,Expense,Transport,
+2026-09-18,Amazon,4250,Expense,Shopping,
+2026-09-19,Spotify,119,Expense,Subscriptions,
+2026-09-20,Swiggy,1710,Expense,Food

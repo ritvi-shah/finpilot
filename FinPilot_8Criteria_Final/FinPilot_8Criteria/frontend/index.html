@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinPilot | AI Financial Decision Support</title>
+    <meta name="description" content="FinPilot turns your scattered financial data into one clear, explainable picture of spending, commitments, cash flow and goals.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">💳</span>
+                <h1>FinPilot</h1>
+            </div>
+            <p class="subtitle">AI-powered decision support</p>
+
+            <nav class="nav-menu">
+                <button class="nav-item" data-target="dashboard" id="nav-dashboard">📊 Dashboard</button>
+                <button class="nav-item" data-target="transactions" id="nav-transactions">💳 Transactions</button>
+                <button class="nav-item" data-target="budgets" id="nav-budgets">🎯 Budgets &amp; Subs</button>
+                <button class="nav-item" data-target="goals" id="nav-goals">🚀 Goals</button>
+                <button class="nav-item chat-nav" data-target="ask" id="nav-ask">💬 Ask FinPilot</button>
+            </nav>
+
+            <div class="sidebar-actions">
+                <button id="reset-btn" class="danger-btn">🔄 Reset Data</button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="hero">
+                <div class="hero-inner">
+                    <div class="hero-content">
+                        <div class="hero-badge">✨ AI-Powered Financial Intelligence</div>
+                        <h2>Welcome to <span class="text-gradient">FinPilot</span></h2>
+                        <p>Your financial data, turned into one clear, explainable picture of spending, commitments, cash flow and goals.</p>
+                    </div>
+                    <div class="hero-visual">
+                        <svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" class="hero-svg">
+                            <defs>
+                                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#818cf8;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#38bdf8;stop-opacity:1" />
+                                </linearGradient>
+                                <linearGradient id="grad2" x1="0%" y1="100%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#c084fc;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#6366f1;stop-opacity:1" />
+                                </linearGradient>
+                                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                                    <feGaussianBlur stdDeviation="15" result="blur" />
+                                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                </filter>
+                            </defs>
+                            
+                            <!-- Floating abstract shapes -->
+                            <circle cx="650" cy="150" r="40" fill="url(#grad2)" opacity="0.6" filter="url(#glow)">
+                                <animate attributeName="cy" values="150; 130; 150" dur="6s" repeatCount="indefinite"/>
+                            </circle>
+                            <circle cx="200" cy="450" r="60" fill="url(#grad1)" opacity="0.4" filter="url(#glow)">
+                                <animate attributeName="cy" values="450; 480; 450" dur="8s" repeatCount="indefinite"/>
+                            </circle>
+                            
+                            <!-- Main Rocket/Chart Icon -->
+                            <g transform="translate(400, 300)">
+                                <!-- Animated hovering -->
+                                <animateTransform attributeName="transform" type="translate" values="400,300; 400,280; 400,300" dur="4s" repeatCount="indefinite"/>
+                                
+                                <!-- Chart Bars -->
+                                <rect x="-120" y="20" width="30" height="80" rx="10" fill="rgba(255,255,255,0.1)" />
+                                <rect x="-70" y="-10" width="30" height="110" rx="10" fill="rgba(255,255,255,0.2)" />
+                                <rect x="-20" y="-50" width="30" height="150" rx="10" fill="rgba(255,255,255,0.3)" />
+                                
+                                <!-- Rocket / Paper Plane -->
+                                <path d="M 0 50 L 120 -80 L 160 -100 L 140 -60 L 50 60 Z" fill="url(#grad1)" filter="url(#glow)"/>
+                                <path d="M 0 50 L 50 120 L 70 80 L 140 -60 Z" fill="url(#grad2)"/>
+                                <path d="M 160 -100 L 50 60 L 70 80 Z" fill="#ffffff" opacity="0.8"/>
+                                
+                                <!-- Trajectory line -->
+                                <path d="M -150 120 Q -50 120 120 -80" fill="none" stroke="url(#grad1)" stroke-width="6" stroke-dasharray="10 10" opacity="0.6"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </header>
+
+            <div id="loader" class="loader hidden"></div>
+
+            <!-- ── Onboarding / Empty State ─────────────────────────────── -->
+            <div id="empty-state" class="view active">
+                <div class="glass onboarding-header">
+                    <h2>👋 Welcome to FinPilot</h2>
+                    <p class="muted">Get started by uploading your transaction statement (CSV/Excel) or enter your first transaction manually. All analysis is based solely on the data you provide.</p>
+                </div>
+
+                <div class="dashboard-grid onboarding-grid">
+                    <!-- File Upload -->
+                    <div class="glass">
+                        <h3>📤 Upload Statement</h3>
+                        <p class="muted mb-4">Supports CSV and Excel files. Minimum columns: <code>Date, Amount</code> (Description is optional)</p>
+                        <form id="upload-form" class="interactive-form">
+                            <div class="drop-zone" id="drop-zone">
+                                <div class="drop-zone-icon">☁️</div>
+                                <p>Drag &amp; drop your file here</p>
+                                <p class="muted">or</p>
+                                <label for="file-upload" class="file-label">Browse Files</label>
+                                <input type="file" id="file-upload" accept=".csv,.xlsx,.xls" required style="display:none">
+                                <p id="file-name-display" class="file-name-display muted"></p>
+                            </div>
+                            <button type="submit" class="primary-btn" id="upload-btn" style="margin-top:16px">Upload &amp; Analyse</button>
+                        </form>
+                    </div>
+
+                    <!-- Manual Entry -->
+                    <div class="glass">
+                        <h3>✍️ Add Transaction Manually</h3>
+                        <p class="muted mb-4">Start immediately — no file needed.</p>
+                        <form id="manual-tx-form" class="interactive-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="tx-date">Date</label>
+                                    <input type="date" id="tx-date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tx-amt">Amount (₹)</label>
+                                    <input type="number" id="tx-amt" placeholder="e.g. 1500" min="1" step="1" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="tx-desc">Description / Merchant <span class="muted">(optional)</span></label>
+                                <input type="text" id="tx-desc" placeholder="e.g. Swiggy, Netflix, Salary">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="tx-type">Type</label>
+                                    <select id="tx-type">
+                                        <option value="Expense">Expense</option>
+                                        <option value="Income">Income</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tx-cat">Category</label>
+                                    <select id="tx-cat">
+                                        <option value="Housing">Housing</option>
+                                        <option value="Food">Food</option>
+                                        <option value="Transport">Transport</option>
+                                        <option value="Shopping">Shopping</option>
+                                        <option value="Bills">Bills</option>
+                                        <option value="Health">Health</option>
+                                        <option value="Education">Education</option>
+                                        <option value="Entertainment">Entertainment</option>
+                                        <option value="Subscriptions">Subscriptions</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="primary-btn" id="add-tx-btn">Add Transaction</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Dashboard ──────────────────────────────────────────────── -->
+            <section id="dashboard" class="view hidden">
+                <div class="metrics-grid">
+                    <div class="metric-card glass">
+                        <h3>Income</h3>
+                        <div class="value good" id="metric-income">₹0</div>
+                        <p class="muted" style="font-size:12px;margin-top:4px">This month</p>
+                    </div>
+                    <div class="metric-card glass">
+                        <h3>Expenses</h3>
+                        <div class="value bad" id="metric-expenses">₹0</div>
+                        <p class="muted" style="font-size:12px;margin-top:4px">This month</p>
+                    </div>
+                    <div class="metric-card glass">
+                        <h3>Net Cash Flow</h3>
+                        <div class="value" id="metric-net">₹0</div>
+                        <p class="muted" style="font-size:12px;margin-top:4px">Income − Expenses</p>
+                    </div>
+                    <div class="metric-card glass">
+                        <h3>Committed</h3>
+                        <div class="value warn" id="metric-committed">₹0</div>
+                        <p class="muted" style="font-size:12px;margin-top:4px">Tracked bills</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="chart-container glass">
+                        <h3>Spending by Category</h3>
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                    <div class="agent-snapshot glass">
+                        <h3>🤖 AI Insights</h3>
+                        <div id="agent-insights">
+                            <p class="muted">Load data to see insights.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container glass flow-chart">
+                    <h3>Cash Flow Over Time</h3>
+                    <canvas id="flowChart"></canvas>
+                </div>
+            </section>
+
+            <!-- ── Transactions ────────────────────────────────────────────── -->
+            <section id="transactions" class="view hidden">
+                <!-- Data Entry Section -->
+                <div class="dashboard-grid mb-4">
+                    <!-- Inline Add Transaction Form -->
+                    <div class="glass">
+                        <h3 style="margin-bottom:16px">➕ Add Manually</h3>
+                        <form id="add-tx-view-form" class="interactive-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="tx2-date">Date</label>
+                                    <input type="date" id="tx2-date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tx2-desc">Description <span class="muted">(optional)</span></label>
+                                    <input type="text" id="tx2-desc" placeholder="e.g. Amazon, Salary">
+                                </div>
+                                <div class="form-group">
+                                    <label for="tx2-amt">Amount (₹)</label>
+                                    <input type="number" id="tx2-amt" min="1" step="1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tx2-type">Type</label>
+                                    <select id="tx2-type">
+                                        <option value="Expense">Expense</option>
+                                        <option value="Income">Income</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tx2-cat">Category</label>
+                                    <select id="tx2-cat">
+                                        <option value="Housing">Housing</option>
+                                        <option value="Food">Food</option>
+                                        <option value="Transport">Transport</option>
+                                        <option value="Shopping">Shopping</option>
+                                        <option value="Bills">Bills</option>
+                                        <option value="Health">Health</option>
+                                        <option value="Education">Education</option>
+                                        <option value="Entertainment">Entertainment</option>
+                                        <option value="Subscriptions">Subscriptions</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="primary-btn" id="add-tx2-btn" style="margin-top:8px">Add Transaction</button>
+                        </form>
+                    </div>
+
+                    <!-- Inline CSV Upload Form -->
+                    <div class="glass">
+                        <h3 style="margin-bottom:16px">📤 Upload Statement</h3>
+                        <form id="upload-view-form" class="interactive-form">
+                            <div class="drop-zone" id="drop-zone-2" style="padding: 20px;">
+                                <div class="drop-zone-icon" style="font-size: 24px; margin-bottom: 8px;">☁️</div>
+                                <p style="font-size: 13px;">Drag &amp; drop or click to browse</p>
+                                <label for="file-upload-2" class="file-label" style="padding: 6px 12px; font-size: 12px;">Browse Files</label>
+                                <input type="file" id="file-upload-2" accept=".csv,.xlsx,.xls" required style="display:none">
+                                <p id="file-name-display-2" class="file-name-display muted" style="font-size: 11px;"></p>
+                            </div>
+                            <button type="submit" class="primary-btn" id="upload-btn-2" style="margin-top:16px">Upload &amp; Merge</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="transactions-container glass">
+                    <div class="header-row">
+                        <h3>Transaction History</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="transactions-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactions-body">
+                                <tr><td colspan="5" class="empty-state">No transactions yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Budgets & Subs ──────────────────────────────────────────── -->
+            <section id="budgets" class="view hidden">
+                <div class="dashboard-grid">
+                    <div class="glass">
+                        <h3>🎯 Set a Budget</h3>
+                        <form id="budget-form" class="interactive-form" style="margin-top:16px">
+                            <div class="form-group">
+                                <label for="budget-category">Category</label>
+                                <select id="budget-category" required>
+                                    <option value="Food">Food</option>
+                                    <option value="Housing">Housing</option>
+                                    <option value="Transport">Transport</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Bills">Bills</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Health">Health</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Subscriptions">Subscriptions</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="budget-amount">Monthly Limit (₹)</label>
+                                <input type="number" id="budget-amount" placeholder="e.g. 5000" min="100" step="100" required>
+                            </div>
+                            <button type="submit" class="primary-btn">Save Budget</button>
+                        </form>
+                        <div id="budget-list" class="mt-4"></div>
+                    </div>
+                    <div class="glass">
+                        <h3>🔄 Frequent Transactions</h3>
+                        <p class="muted" style="margin-top:8px">Transactions appearing more than once in your data.</p>
+                        <div id="subs-list" class="mt-4"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Goals ──────────────────────────────────────────────────── -->
+            <section id="goals" class="view hidden">
+                <div class="glass mb-4">
+                    <h3>🚀 Create a Savings Goal</h3>
+                    <form id="goal-form" class="interactive-form inline-form" style="margin-top:16px">
+                        <div class="form-group">
+                            <label for="goal-name">Goal Name</label>
+                            <input type="text" id="goal-name" placeholder="e.g. Emergency Fund" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="goal-target">Target (₹)</label>
+                            <input type="number" id="goal-target" placeholder="100000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="goal-current">Already Saved (₹)</label>
+                            <input type="number" id="goal-current" placeholder="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="goal-monthly">Monthly Contribution (₹)</label>
+                            <input type="number" id="goal-monthly" placeholder="5000" required>
+                        </div>
+                        <div class="form-group" style="align-self:flex-end">
+                            <button type="submit" class="primary-btn">Add Goal</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="goals-grid" id="goals-list"></div>
+            </section>
+
+            <!-- ── Ask FinPilot ────────────────────────────────────────────── -->
+            <section id="ask" class="view hidden">
+                <div class="chat-container glass">
+                    <div class="chat-header">
+                        <h3>🤖 Chat with FinPilot</h3>
+                        <p class="muted">Ask me anything about your finances.</p>
+                    </div>
+                    <div class="chat-history" id="chat-history">
+                        <div class="chat-msg agent-msg">
+                            <div class="bubble">Hello! I'm FinPilot. How can I help you understand your spending today? Try asking: <em>"Where did I spend the most this month?"</em></div>
+                        </div>
+                    </div>
+                    <form id="chat-form" class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="e.g. Where did I spend the most?" autocomplete="off" required>
+                        <button type="submit" class="primary-btn send-btn">Send</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
