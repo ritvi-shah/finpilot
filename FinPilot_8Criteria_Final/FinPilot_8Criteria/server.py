@@ -147,7 +147,12 @@ def get_dashboard():
     exp_df = df[(df.date.dt.to_period("M").astype(str) == m) & (df.type == "Expense")]
     cat_totals = exp_df.groupby("category").amount.sum().abs().sort_values(ascending=False).to_dict()
     
-    committed = sum(b["amount"] for _, b in state["bills"].iterrows()) if len(state["bills"]) else 0
+    committed = float(
+    exp_df[exp_df["category"].isin(["Bills", "Subscriptions"])]
+    ["amount"]
+    .abs()
+    .sum()
+)
     cf = df.groupby(df.date.astype(str)).amount.sum().to_dict()
 
     return jsonify({
