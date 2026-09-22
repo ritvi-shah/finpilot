@@ -318,7 +318,7 @@ if (!insightsHtml) {
     insightsHtml = '<p class="muted">Add more transactions to generate insights.</p>';
 }
 
-$$('agent-insights').innerHTML = insightsHtml;
+$('agent-insights').innerHTML = insightsHtml;
 
         // Category Chart
         const ctxCat = $('categoryChart').getContext('2d');
