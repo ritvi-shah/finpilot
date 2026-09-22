@@ -277,7 +277,7 @@ async function loadDashboard() {
         $('metric-expenses').textContent = formatMoney(data.expenses);
 
         const netEl = $('metric-net');
-        netEl.textContent = (data.net >= 0 ? '+' : '') + formatMoney(data.net);
+        netEl.textContent = (data.net < 0 ? '-' : '+') + formatMoney(data.net);
         netEl.className   = data.net < 0 ? 'value bad' : 'value good';
 
         $('metric-committed').textContent = formatMoney(data.committed);
