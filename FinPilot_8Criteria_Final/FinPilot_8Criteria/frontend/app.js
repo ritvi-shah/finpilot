@@ -318,15 +318,7 @@ if (!insightsHtml) {
     insightsHtml = '<p class="muted">Add more transactions to generate insights.</p>';
 }
 
-$('agent-insights').innerHTML = insightsHtml;
-        if (data.committed > 0) {
-            insightsHtml += `<div class="insight-box">
-                <p><b>📌 Committed Bills</b></p>
-                <p><b>${formatMoney(data.committed)}</b> is tracked as upcoming obligations.</p>
-            </div>`;
-        }
-        if (!insightsHtml) insightsHtml = '<p class="muted">Add more transactions to generate insights.</p>';
-        $('agent-insights').innerHTML = insightsHtml;
+$$('agent-insights').innerHTML = insightsHtml;
 
         // Category Chart
         const ctxCat = $('categoryChart').getContext('2d');
