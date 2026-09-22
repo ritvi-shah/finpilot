@@ -283,20 +283,42 @@ async function loadDashboard() {
         $('metric-committed').textContent = formatMoney(data.committed);
 
         // Agent Insights
-        const cats = Object.keys(data.category_totals);
-        let insightsHtml = '';
-        if (cats.length > 0) {
-            const savingsRate = data.income > 0 ? ((data.income - data.expenses) / data.income * 100).toFixed(1) : 0;
-            insightsHtml += `
-                <div class="insight-box">
-                    <p><b>🏆 Top Spend: ${cats[0]}</b></p>
-                    <p>You spent <b>${formatMoney(data.category_totals[cats[0]])}</b> on ${cats[0]} this month.</p>
-                </div>
-                <div class="insight-box">
-                    <p><b>💰 Savings Rate</b></p>
-                    <p>You saved <b>${savingsRate}%</b> of your income this month.</p>
-                </div>`;
-        }
+const categoryEntries = Object.entries(data.category_totals)
+    .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
+
+let insightsHtml = '';
+
+if (categoryEntries.length > 0) {
+    const [topCategory, topAmount] = categoryEntries[0];
+
+    const savingsRate = data.income > 0
+        ? ((data.income - data.expenses) / data.income * 100).toFixed(1)
+        : '0.0';
+
+    insightsHtml += `
+        <div class="insight-box">
+            <p><b>🏆 Top Spend: ${topCategory}</b></p>
+            <p>You spent <b>${formatMoney(topAmount)}</b> on ${topCategory} this month.</p>
+        </div>
+
+        <div class="insight-box">
+            <p><b>💰 Savings Rate</b></p>
+            <p>You saved <b>${savingsRate}%</b> of your income this month.</p>
+        </div>`;
+}
+
+if (data.committed > 0) {
+    insightsHtml += `<div class="insight-box">
+        <p><b>📌 Committed Bills</b></p>
+        <p><b>${formatMoney(data.committed)}</b> is tracked as upcoming obligations.</p>
+    </div>`;
+}
+
+if (!insightsHtml) {
+    insightsHtml = '<p class="muted">Add more transactions to generate insights.</p>';
+}
+
+$('agent-insights').innerHTML = insightsHtml;
         if (data.committed > 0) {
             insightsHtml += `<div class="insight-box">
                 <p><b>📌 Committed Bills</b></p>
